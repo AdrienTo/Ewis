@@ -16,7 +16,19 @@ def viewPDF (marginal, title=None, xTitle=None, yTitle=None, legend=None, output
         View(PDF).save(outputFile)
     else :
         View (PDF)
-        
+
+def viewCDF (marginal, title=None, xTitle=None, yTitle= None, legend=None, outputFile=None):
+    
+    CDF = marginal.drawCDF()
+    if (title      != None): CDF.setTitle(title)
+    if (xTitle     != None): CDF.setXTitle(xTitle)
+    if (yTitle     != None): CDF.setYTitle(yTitle)
+    if (legend     != None): CDF.setLegends(legend)
+    if (outputFile != None): 
+        View(CDF).save(outputFile)
+    else :
+        View (CDF)  
+    
         
 def viewHisto (sample, name=None, title=None, xTitle=None, xmin=0, xmax=0, outputFile=None):
     
@@ -32,7 +44,7 @@ def viewHisto (sample, name=None, title=None, xTitle=None, xmin=0, xmax=0, outpu
     View(histo).save(outputFile)
 
     
-def viewCDF (sample, name=None, title=None, xTitle=None, yTitle= None,  xmin=0, xmax=0, outputFile=None):
+def viewEmpiricalCDF (sample, name=None, title=None, xTitle=None, yTitle= None,  xmin=0, xmax=0, outputFile=None):
     
     cdf=ot.VisualTest.DrawEmpiricalCDF(sample, xmin, xmax)
     cdf.setName(name)
@@ -45,11 +57,12 @@ def viewCDF (sample, name=None, title=None, xTitle=None, yTitle= None,  xmin=0, 
     View(cdf).save(outputFile)
 
 
+
 def viewResults (sample, type, vmin, vmax, workdir):
     
     #Visualisation
-    viewHisto (sample, "Histogram "+ type, "Histogram "+ type, type, vmin, vmax, workdir+'/'+type+'Histogram.png')
-    viewCDF   (sample, "CDF "+ type, "CDF "+ type, type,"CDF", vmin, vmax,  workdir+'/'+type+'CDF.png')
+    viewHisto        (sample, "Histogram "+ type, "Histogram "+ type, type, vmin, vmax, workdir+'/'+type+'Histogram.png')
+    viewEmpiricalCDF (sample, "CDF "+ type, "CDF "+ type, type,"CDF", vmin, vmax,  workdir+'/'+type+'CDF.png')
 
     #Results
 
@@ -57,10 +70,13 @@ def viewResults (sample, type, vmin, vmax, workdir):
     print "-------------------------------------------------------------------------------"
     print type + " \n"
     print "* ------ Deterministic analysis ------*"
-    print type + " Min =", (sample.getMin())[0], "Max = ", sample.getMax()[0], "Delta = ", sample.getMax()[0] - sample.getMin()[0]
+    print " Min = % .2f" %sample.getMin()[0], "Max = % .2f" %sample.getMax()[0], "Delta = % .2f" %(sample.getMax()[0] - sample.getMin()[0])
     print "\n"
     print "* ------ Probabilistic analysis ------*"
-    print type + " Quantile @ 5% = ", sample.computeQuantile(0.05)[0], "Quantile @ 50% = ", sample.computeQuantile(0.5) [0],"Quantile @ 95% = ", sample.computeQuantile(0.95)[0]
-    print type+": Variance =", np.array(sample.computeCovariance())[0][0], "6-sigma = ", 6*sqrt(np.array(sample.computeCovariance())[0][0])
-    print type+": Interquantile (q(99,7%) - q(0,3%)) = ", (sample.computeQuantile(0.997)[0] - sample.computeQuantile(0.003)[0])
+    print " Quantile @ 50 = % .2f " %sample.computeQuantile(0.5) [0]
+    print " Quantile @ 90 = % .2f " %sample.computeQuantile(0.90)[0]
+    print " Quantile @ 99 = % .2f " %sample.computeQuantile(0.99)[0]
+    print " Variance  = % .2f " %np.array(sample.computeCovariance())[0][0]
+    print " Interquantile  (q(99,7) - q(0,3)) = % .2f " %(sample.computeQuantile(0.997)[0] - sample.computeQuantile(0.003)[0])
+    print " 6-sigma = % .2f" %(sqrt(np.array(sample.computeCovariance())[0][0])*6)
     print "-------------------------------------------------------------------------------"
